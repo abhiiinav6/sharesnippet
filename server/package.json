@@ -1,0 +1,30 @@
+{
+  "name": "sharesnippet",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.ts",
+  "scripts": {
+    "start": "node dist/index.js",
+    "build": "npm install && tsc",
+    "dev": "ts-node src/index.ts",
+    "prisma:generate": "prisma generate",
+    "deploy": "npm run prisma:generate && npm start"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@prisma/client": "^5.13.0",
+    "argon2": "^0.40.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.12.7",
+    "prisma": "^5.13.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  }
+}

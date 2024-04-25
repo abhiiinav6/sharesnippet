@@ -1,0 +1,90 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String       @id @default(cuid())
+  name      String
+  email     String       @unique
+  image     String?
+  password  String
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  Snippet   Snippet[]
+  follower  UserFollow[] @relation("follower")
+  followee  UserFollow[] @relation("followee")
+  Star      Star[]
+  Comments  Comments[]
+}
+
+model Snippet {
+  id           Int        @id @default(autoincrement())
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  title        String
+  private      Boolean    @default(false)
+  userId       String
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  File         File[]
+  snippetStars Star[]
+  Comments     Comments[]
+}
+
+model File {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  fileName  String
+  code      String   @db.Text
+  snippetId Int
+  snippet   Snippet  @relation(fields: [snippetId], references: [id], onDelete: Cascade)
+}
+
+model UserFollow {
+  id         Int     @id
+  followerId String
+  followeeId String
+  unfollowed Boolean @default(false)
+
+  follower User @relation("follower", fields: [followerId], references: [id], onDelete: Cascade)
+  followee User @relation("followee", fields: [followeeId], references: [id], onDelete: Cascade)
+}
+
+model Star {
+  userId    String
+  snippetId Int
+  unstarred Boolean @default(false)
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  snippet Snippet @relation(fields: [snippetId], references: [id], onDelete: Cascade)
+
+  @@id(name: "likeId", fields: [snippetId, userId])
+}
+
+model Comments {
+  id        Int      @id
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  body            String  @db.Text
+  snippetId       Int
+  userId          String
+  parentCommentId Int
+  deleted         Boolean @default(false)
+
+  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  snippet       Snippet    @relation(fields: [snippetId], references: [id], onDelete: Cascade)
+  parentComment Comments   @relation("parent", fields: [parentCommentId], references: [id])
+  Comments      Comments[] @relation("parent")
+}
